@@ -64,8 +64,12 @@ use App\Repositories\ControladorElementos;
 		$ventajaB = 0;
 		$mascotaA =  \App\DatoMascota::where('id',$user->avatar)->first();
 		$mascotaB =  \App\DatoMascota::where('id',$user_oponente->uid_avatar)->first();
-
 		
+		if($mascotaA == NULL || $mascotaB == NULL){
+			return "ERROR ".$user." Intenta usar el id ".$user->avatar." pero no existe ".Carbon::now()." Registrar esto en un log";
+
+		}
+
 
 		$ventaja = $this->elementos->VerificarVentajaElemetoA($mascotaA->elemento,$mascotaB->elemento);
 

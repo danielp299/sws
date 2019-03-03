@@ -86,6 +86,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             //$poder = $request->exp;
             $peleaSimulada = $this->pelea->simularPelea($request, $random);
+
+            if($peleaSimulada === "NO VALIDO"){
+                return "ERROR ".$peleaSimulada;
+            }
             
             $array = json_decode($peleaSimulada, true);
             //$ganadorPelea = $this->pelea->simularPelea($request, $random);
