@@ -272,24 +272,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 }
             }
             return $peleaSimulada;
-             /* return response()->json([
-                'jugadorA' => $request->uid_user,
-                'avatarA' => $request->avatar,
-                'evolucionA'=> 1,
-                'experienciaA'=> $request->exp,
-                'jugadorB' => $random->uid_user,
-                'avatarB' => $random->uid_avatar,
-                'evolucionB'=> 1,
-                'experienciaB'=> "".$random->exp,
-                'ganador' => $ganadorPelea,
-                'BonoA' => "si",
-                'BonoB' => "no",
-                'EvolucionaA'=> "no",
-                'EvolucionaB' => "no",
-                'experienciaGanadador'=> 500,
-                'experienciaPerdedor'=> 100
-                
-             ]); */
         
             }
             
@@ -298,6 +280,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function agregarVictima(Request $request)
         {
+            $contVictimas = \App\Victima::where('uid_user', $request->uid)->count();
+            
+            $datoMascota = \App\DatoMascota::where('id', $request->avatar)->first();
             $user = \App\User::where('uid_user', $request->uid)->get();
             if($user->isEmpty()){
                 $avatar = \App\Avatar::where('uid_avatar', $request->avatar)->get();
@@ -347,7 +332,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         	
 
         	return new VictimaResource($victima);
-        }
 
         public function agregarAvatar(Request $request)
         {

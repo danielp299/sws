@@ -14,6 +14,7 @@ class CreateVictimasTable extends Migration
     public function up()
     {
         Schema::create('victimas', function (Blueprint $table) {
+            $table->increments('id');
             $table->string('uid_user');
             $table->string('uid_avatar');
             $table->integer('exp');

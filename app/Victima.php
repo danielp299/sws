@@ -15,6 +15,6 @@ class Victima extends Model
 
     public function avatar()
     {
-    	return $this->belongsTo(User::class, 'uid_avatar');
+    	return $this->belongsTo(Avatar::class, 'uid_avatar');
     }
 }
