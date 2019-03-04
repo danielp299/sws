@@ -18,7 +18,6 @@ class CreateVictimasTable extends Migration
             $table->string('uid_user');
             $table->string('uid_avatar');
             $table->integer('exp');
-            $table->integer('evolucion');
             $table->timestamps();
         });
     }

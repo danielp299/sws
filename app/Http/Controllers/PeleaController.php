@@ -82,7 +82,8 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             }
             else
             {
-                $random = $victima->random();
+            
+            $random = $victima->random();
 
             //$poder = $request->exp;
             $peleaSimulada = $this->pelea->simularPelea($request, $random);
@@ -271,6 +272,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     }
                 }
             }
+
+            $random->delete();
+
             return $peleaSimulada;
         
             }
@@ -318,8 +322,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             $victima->user()->associate($user->uid_user);
             $victima->avatar()->associate($request->avatar);
             $victima->exp = $request->exp;
-            /** El poder me dice en que evolucion estoy y la evolucion el skin de la proxima evolucion */
-            $victima->evolucion = $datoMascota->poder_base;
             $victima->save();
 
             //return $log;
@@ -469,8 +471,46 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
          public function afiliacionGym(Request $request){
 
             $gym = \App\Gimnasio::where('uid_gym', $request->uid_gym)->first();
-            $user = \App\User::where('uid_user', $request->uid_user)->get();
-            if($user->isEmpty()){
+            if(!$gym) return "ERROR 7";
+            $user = \App\User::where('uid_user', $request->uid_user)->first();
+            $datoMascota = \App\DatoMascota::where('id', $request->uid_avatar)->first();
+            if(!$datoMascota) return "ERROR 3 ".$request->avatar."";
+            $ligaActual = \App\Liga::where('uid_user', $request->uid_user)->first();
+            if($ligaActual) $ligaActual->delete();
+            $tieneMedalla = \App\HistoricoMedalla::where('uid_user', $request->uid_user)->where('uid_gym',$gym->medal)->first();
+            if(!$tieneMedalla) return "ERROR 8";
+            //verificar que este en otra liga
+            // debe tener la medalla
+            $avatar = NULL;
+
+
+            if($user){
+                $avatar = \App\Avatar::where('id', $user->uid_avatar)->first();
+                if(!$avatar){
+                    $avatar = new Avatar;
+                }
+            }else{
+                $avatar = new Avatar;
+                $user = new User;
+            }
+
+            $avatar->uid_avatar = $request->uid_avatar;
+            $avatar->exp = $request->exp;
+            $avatar->save();
+
+            $user->uid_user = $request->uid_user;
+            $user->avatar()->associate($avatar->id);
+            $user->exp = 0;
+            $user->save();
+
+            $liga = new Liga;
+            $liga->uid_liga = $gym->uid_gym;
+            $liga->user()->associate($user->uid_user);
+            $liga->puntos = 0;
+            $liga->uid_gym = $gym->uid_gym;
+            $liga->save();
+
+            /*if($user->isEmpty()){
                 $avatar = \App\Avatar::where('uid_avatar', $request->uid_avatar)->get();
                 if($avatar->isEmpty()){
                     $avatar = new Avatar;
@@ -518,7 +558,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $liga->puntos = 0;
                 $liga->uid_gym = $gym->uid_gym;
                 $liga->save();
-            }
+            }*/
 
             return new LigaResource($liga);
          }
@@ -589,14 +629,14 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
          public function peleaLiga(Request $request)
          {
 
-            /*
+            
             $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)
                                          ->where('uid_liga_oponente', $request->uid_liga_oponente)->first();
             $user = \App\User::where('uid_user', $request->uid_user)->first();
             $user_oponente = \App\User::where('uid_user', $request->uid_user_oponente)->first();
 
             $ganador = $this->pelea->simularPelea($user, $user_oponente);
-            $usuario = $user->uid_user;
+            $usuario = $user;
 
             if($ganador == $usuario)
             {
@@ -656,7 +696,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             }else{
                  //return new ProgresoLigaResource($progreso);
-            }*/
+            }
 
             return response()->json([
                 'jugadorA' => $request->uid_user,
