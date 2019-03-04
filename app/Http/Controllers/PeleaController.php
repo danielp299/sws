@@ -281,8 +281,54 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         public function agregarVictima(Request $request)
         {
             $contVictimas = \App\Victima::where('uid_user', $request->uid)->count();
+            if($contVictimas > 2) return "ERROR ya esta 3 veces ";
             
             $datoMascota = \App\DatoMascota::where('id', $request->avatar)->first();
+            if(!$datoMascota) return "ERROR Mascota ".$request->avatar." no encontrada";
+
+            $avatar = NULL;
+            $user = \App\User::where('uid_user', $request->uid)->first();
+
+            if($user){
+                if($user->uid_avatar){
+                    $avatar = \App\Avatar::where('id', $user->uid_avatar)->first();
+                    if($avatar->uid_avatar != $request->avatar){
+                        $avatar = new Avatar;
+                        $avatar->uid_avatar = $request->avatar;
+                    }
+                }else{
+                    $avatar = new Avatar;
+                    $avatar->uid_avatar = $request->avatar;
+                }
+                $avatar->exp = $request->exp;
+                $avatar->save();
+            }else{
+                $avatar = new Avatar;
+                $avatar->uid_avatar = $request->avatar;
+                $avatar->exp = $request->exp;
+                $avatar->save();
+                $user = new User;
+                $user->uid_user = $request->uid;
+            }
+            $user->exp = 0;
+            $user->avatar()->associate($avatar->id);
+            $user->save();
+
+            $victima = new Victima;
+            $victima->user()->associate($user->uid_user);
+            $victima->avatar()->associate($request->avatar);
+            $victima->exp = $request->exp;
+            /** El poder me dice en que evolucion estoy y la evolucion el skin de la proxima evolucion */
+            $victima->evolucion = $datoMascota->poder_base;
+            $victima->save();
+
+            //return $log;
+
+        	return new VictimaResource($victima);
+        }
+
+       /* public function agregarVictima(Request $request)
+        {
             $user = \App\User::where('uid_user', $request->uid)->get();
             if($user->isEmpty()){
                 $avatar = \App\Avatar::where('uid_avatar', $request->avatar)->get();
@@ -332,6 +378,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         	
 
         	return new VictimaResource($victima);
+        }*/
 
         public function agregarAvatar(Request $request)
         {
