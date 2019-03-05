@@ -70,31 +70,62 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         public function peleaBasica(Request $request)
         {
             
-            $victima = \App\Victima::all();
+            $victimas = \App\Victima::all();
             $ganador = new User;
             $perdedor = new User;
-           
-            if($victima->isEmpty())
-            {
-                return response()->json([
-                    'errors' => 'No hay ninguna victima'
-                ]);
-            }
-            else
-            {
+
             
-            $random = $victima->random();
+           
+            if($victimas->isEmpty())
+            {
+                /*return response()->json([
+                    'errors' => 'No hay ninguna victima'
+                ]);*/
+                return "ERROR 1";
+            }
+            
+            $random = $victimas->random();
+
+            $user_victima = \App\User::where('uid_user', $random->uid_user)->first();
+
+            $user =  \App\User::where('uid_user', $request->uid_user)->first();
+
+            
+            if($user){
+                if($user->avatar->uid_avatar == $request->avatar){
+                    $user->avatar->exp = $request->exp;
+                    $user->avatar->save();
+                }else{
+                    $avatar = new Avatar;
+                    $avatar->uid_avatar = $request->avatar;
+                    $avatar->exp =$request->exp;
+                    $avatar->save();
+                    $user->avatar()->associate($avatar->id);
+                    $user->save();
+                    $user = \App\User::where('uid_user', $request->uid_user)->first();
+                }
+            }else{
+                $avatar = new Avatar;
+                $avatar->uid_avatar = $request->avatar;
+                $avatar->exp = $request->exp;
+                $avatar->save();
+                $user = new User;
+                $user->uid_user = $request->uid_user;
+                $user->exp = 0;
+                $user->avatar()->associate($avatar->id);
+                $user->save();
+            }
 
             //$poder = $request->exp;
-            $peleaSimulada = $this->pelea->simularPelea($request, $random);
+            $peleaSimulada = $this->pelea->simularPelea($user, $user_victima);
 
             if($peleaSimulada === "NO VALIDO"){
                 return "ERROR ".$peleaSimulada;
             }
             
-            $array = json_decode($peleaSimulada, true);
+            //$array = json_decode($peleaSimulada, true);
             //$ganadorPelea = $this->pelea->simularPelea($request, $random);
-            $ganadorPelea = $array["ganador"];
+            $ganadorPelea = $peleaSimulada["ganador"];
             
             $usuario = $request->uid_user;
 
@@ -272,14 +303,13 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     }
                 }
             }
-
-            $random->delete();
-
-            return $peleaSimulada;
-        
+            if($victimas->count() > 10){
+                $random->delete();
             }
+
+            return response()->json($peleaSimulada);
+        
             
-        	
         }
 
         public function agregarVictima(Request $request)
@@ -610,11 +640,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $inscribir->victorias = 0;
                 $inscribir->derrotas = 0;
                 $inscribir->save();
-
             }
 
             return new ProgresoLigaResource($inscribir);
-
          }
 
          
@@ -630,21 +658,74 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
          {
 
             
-            $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)
-                                         ->where('uid_liga_oponente', $request->uid_liga_oponente)->first();
-            $user = \App\User::where('uid_user', $request->uid_user)->first();
-            $user_oponente = \App\User::where('uid_user', $request->uid_user_oponente)->first();
+            $progreso   = \App\ProgresoLiga::where('uid_user', $request->uid_user)
+                                             ->where('uid_liga_oponente', $request->uid_liga_oponente)
+                                             ->first();
+            $user       = \App\User::where('uid_user', $request->uid_user)->first();
+            if($user->avatar->uid_avatar == $request->avatar){
+                $user->avatar->exp = $request->exp;
+                $user->avatar->save();
+            }else{
+                $avatar = new Avatar;
+                $avatar->uid_avatar = $request->avatar;
+                $avatar->exp =$request->exp;
+                $avatar->save();
+                $user->avatar()->associate($avatar->id);
+                $user->save();
+                $user = \App\User::where('uid_user', $request->uid_user)->first();
+            }
 
-            $ganador = $this->pelea->simularPelea($user, $user_oponente);
+            $top = Liga::where('uid_liga', $request->uid_liga_oponente)
+            ->orderBy('puntos','desc')
+            ->get();
+
+            $uid_user_oponente = "";
+            $oponente_actual = 9 - $progreso->victorias;
+            $contTop = count($top);
+            if($contTop < $oponente_actual){
+                $uid_user_oponente = $top[$contTop - 1]->uid_user;
+            }else{
+                $uid_user_oponente = $top[$oponente_actual - 1]->uid_user;
+            }
+            
+            $user_oponente  = \App\User::where('uid_user', $uid_user_oponente)->first();
+            if(!$user_oponente ) return "ERROR NO EXISTE ".$uid_user_oponente;
+
+            $resultadoPelea = $this->pelea->simularPelea($user, $user_oponente);
+
+            if($resultadoPelea === "NO VALIDO"){
+                return "ERROR ".$resultadoPelea;
+            }
+            
+
+            $perdedor = NULL;
+            $ganador = NULL;
             $usuario = $user;
+
+            if($resultadoPelea["ganador"] == $user->uid_user){
+                $ganador = $user;
+                $perdedor = $user_oponente;
+            }else{
+                $ganador = $user_oponente;
+                $perdedor = $user;
+            }
+
+            
+            $progreso = NULL;
 
             if($ganador == $usuario)
             {
                 $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)->first();
+                if(!$progreso){
+                    $progreso = new ProgresoLiga();
+                    $progreso->uid_user = $request->uid_user;
+                    $progreso->derrotas = 0;
+                    $progreso->victorias = 0;
+                }
                 $progreso->victorias += 1;
-                $progreso->save();
+                //$progreso->save();
 
-             $ranking = \App\Ranking::where('uid_user', $user->uid_user)->get();
+                $ranking = \App\Ranking::where('uid_user', $user->uid_user)->get();
              if($ranking->isEmpty())
              {
                 $ranking = new Ranking;
@@ -660,8 +741,14 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             
             }else{
                 $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)->first();
+                if(!$progreso){
+                    $progreso = new ProgresoLiga();
+                    $progreso->uid_user = $request->uid_user;
+                    $progreso->derrotas = 0;
+                    $progreso->victorias = 0;
+                }
                 $progreso->derrotas += 1;
-                $progreso->save();
+                //$progreso->save();
 
                 $ranking = \App\Ranking::where('uid_user', $user->uid_user)->get();
              if($ranking->isEmpty())
@@ -678,49 +765,50 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
              }
             }
 
+            $progreso->uid_liga_oponente = $request->uid_liga_oponente;
+            $progreso->save();
+
             if($progreso->victorias == 10)
             {
+                $gym = \App\Gimnasio::where('uid_gym', $request->uid_liga_oponente)->first();
+
                 $medalla = new Medalla;
                 $medalla->uid_user = $progreso->uid_user;
-                $medalla->uid_gym = $progreso->uid_liga_oponente;
+                $medalla->uid_gym = $gym->medal;
                 $medalla->save();
 
                 $historico = new HistoricoMedalla;
                 $historico->uid_user = $progreso->uid_user;
-                $historico->uid_gym = $progreso->uid_liga_oponente;
+                $historico->uid_gym = $gym->medal;
                 $historico->save();
 
                 $progreso->delete();
-                
-                //return new MedallaResource($medalla);
-
-            }else{
-                 //return new ProgresoLigaResource($progreso);
             }
 
+            $ligaActual = \App\Liga::where('uid_user', $request->uid_user)->first();
+            
             return response()->json([
-                'jugadorA' => $request->uid_user,
-                'avatarA' => "2",
-                'evolucionA'=> 1,
-                'experienciaA'=> "333",
-                'jugadorB' => $request->uid_user_oponente,
-                'avatarB' => "5",
-                'evolucionB'=> 1,
-                'experienciaB'=> "33",
-                'ganador' => $request->uid_user,
-                'BonoA' => 0 ,
-                'BonoB' => 0 ,
-                'EvolucionaA'=>  0,
-                'EvolucionaB' => 0,
-                'experienciaGanadador'=> 500,
-                'experienciaPerdedor'=> 100,
-                'LigaA'=> "qweqwe",
+                'jugadorA' => $resultadoPelea["jugadorA"],
+                'avatarA' => $resultadoPelea["avatarA"],
+                'evolucionA'=> $resultadoPelea["evolucionA"],
+                'experienciaA'=> $resultadoPelea["experienciaA"],
+                'jugadorB' => $resultadoPelea["jugadorB"],
+                'avatarB' => $resultadoPelea["avatarB"],
+                'evolucionB'=> $resultadoPelea["evolucionB"],
+                'experienciaB'=> $resultadoPelea["experienciaB"],
+                'ganador' => $resultadoPelea["ganador"],
+                'BonoA' => $resultadoPelea["BonoA"] ,
+                'BonoB' => $resultadoPelea["BonoB"] ,
+                'EvolucionaA'=>  $resultadoPelea["EvolucionaA"],
+                'EvolucionaB' => $resultadoPelea["EvolucionaB"],
+                'experienciaGanadador'=> 25,
+                'experienciaPerdedor'=> 10,
+                'LigaA'=> $ligaActual ? $ligaActual->uid_gym : "no",
                 'LigaB'=> $request->uid_liga_oponente,
-                'victorias'=> 1,
-                'derrotas'=> 1
+                'victorias'=> $progreso->victorias,
+                'derrotas'=> $progreso->derrotas
 			
             ]);
-           // return "o.o";
 
          }
 

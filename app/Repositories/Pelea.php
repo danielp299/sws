@@ -62,12 +62,15 @@ use App\Repositories\ControladorElementos;
 		$evolucionaB = 0;
 		$ventajaA = 0;
 		$ventajaB = 0;
-		$mascotaA =  \App\DatoMascota::where('id',$user->avatar)->first();
-		$mascotaB =  \App\DatoMascota::where('id',$user_oponente->uid_avatar)->first();
+		$mascotaA =  \App\DatoMascota::where('id',$user->avatar->uid_avatar)->first();
+		$mascotaB =  \App\DatoMascota::where('id',$user_oponente->avatar->uid_avatar)->first();
 		
-		if($mascotaA == NULL || $mascotaB == NULL){
-			return "ERROR ".$user." Intenta usar el id ".$user->avatar." pero no existe ".Carbon::now()." Registrar esto en un log";
-
+		if($mascotaA == NULL ){
+			return "ERROR 4 ";
+			//return "ERROR 4 ".$user." Intenta usar el id ".$user->avatar->uid_avatar." pero no existe ".Carbon::now()." Registrar esto en un log";
+		}else if($mascotaB == NULL ){
+			return "ERROR 5 ";
+			//return "ERROR 5 ".$user_oponente." Intenta usar el id ".$user_oponente->uid_avatar." pero no existe ".Carbon::now()." Registrar esto en un log";
 		}
 
 
@@ -95,9 +98,9 @@ use App\Repositories\ControladorElementos;
 	 		$evolucionB = 1.0;
 	 	}
 
-	 	$usuarioExpTotal = ($mascotaA->poder_base * $user->exp * $efecto_ventaja_evolucion)  +  ($bonoA * $efecto_ventaja_bono * $user->exp)+ ($ventajaA * $user->exp);
+	 	$usuarioExpTotal = ($mascotaA->poder_base * $user->avatar->exp * $efecto_ventaja_evolucion)  +  ($bonoA * $efecto_ventaja_bono * $user->avatar->exp)+ ($ventajaA * $user->avatar->exp);
 		// $oponente = $user_oponente->exp + ($bonoB * $efecto_ventaja_bono * $user_oponente->exp);
-		$oponenteExpTotal = ($mascotaB->poder_base * $user_oponente->exp * $efecto_ventaja_evolucion)  +  ($bonoB * $efecto_ventaja_bono * $user_oponente->exp)+ ($ventajaB * $user_oponente->exp);
+		$oponenteExpTotal = ($mascotaB->poder_base * $user_oponente->avatar->exp * $efecto_ventaja_evolucion)  +  ($bonoB * $efecto_ventaja_bono * $user_oponente->avatar->exp)+ ($ventajaB * $user_oponente->avatar->exp);
 		 $ganador = "";
 	 	if($usuarioExpTotal > $oponenteExpTotal){
 			$ganador  = $user->uid_user;
@@ -107,13 +110,13 @@ use App\Repositories\ControladorElementos;
 
 		 //return $ganador;
 		 
-		 return response()->json([
+		 return [
 			'jugadorA' => $user->uid_user,
-			'avatarA' => $user->avatar,
+			'avatarA' => $user->avatar->uid_avatar,
 			'evolucionA'=> 1,
 			'experienciaA'=> "".$usuarioExpTotal,
 			'jugadorB' => $user_oponente->uid_user,
-			'avatarB' => $user_oponente->uid_avatar,
+			'avatarB' => $user_oponente->avatar->uid_avatar,
 			'evolucionB'=> 1,
 			'experienciaB'=> "".$oponenteExpTotal,
 			'ganador' => $ganador,
@@ -124,7 +127,7 @@ use App\Repositories\ControladorElementos;
 			'experienciaGanadador'=> 100,
 			'experienciaPerdedor'=> 20
 			
-		 ]);
+		 ];
 
 	 }  
 
