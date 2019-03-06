@@ -18,6 +18,11 @@ class CreateGimnasiosTable extends Migration
             $table->string('uid_gym')->unique();
             $table->string('description');
             $table->string('medal');
+            $table->string('leader');
+            $table->string('mascota');
+            $table->string('points');
+            $table->string('members');
+            $table->string('ranking');
             $table->timestamps();
         });
     }

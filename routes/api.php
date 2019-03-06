@@ -22,6 +22,7 @@ Route::get('/victima','PeleaController@agregarVictima');
 Route::get('/avatar', 'PeleaController@agregarAvatar');
 Route::get('/perfil','PeleaController@consultarPerfil');
 Route::get('/miRanking','PeleaController@miRankingGlobal');
+Route::get('/miRankingLiga', 'PeleaController@miRankingLiga');
 Route::get('/afiliarGym','PeleaController@afiliacionGym');
 Route::get('/desafiliarGym','PeleaController@desafiliacionGym');
 Route::get('/topRankingGlobal','PeleaController@topRankingGlobal');
@@ -40,4 +41,4 @@ Route::get('/detalleConcurso', 'PeleaController@detalleConcurso');
 Route::get('/gimnasios', 'PeleaController@todosLosGimnasios');
 Route::get('/torneos', 'PeleaController@todosLosTorneos');
 Route::get('/concursos', 'PeleaController@todosLosConcursos');
-//Route::get('/elementosTest', 'PeleaController@elementosTest');
+//Route::get('/elementosTest', 'PeleaController@elementosTest'); miRankingLiga

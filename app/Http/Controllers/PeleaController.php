@@ -601,10 +601,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             return 'Exitoso';
          }
 
+
          public function topRankingGlobal()
          {
             return RankingCollection::collection(Ranking::orderBy('puntos','desc')->get());
-                //::orderBy('puntos','desc')
          }
 
          public function topRankingLiga(Request $request)
@@ -614,6 +614,19 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                                 ->orderBy('puntos','desc')
                                 ->get());                   
          }
+
+         public function miRankingLiga(Request $request){
+
+            $progreso   = \App\ProgresoLiga::where('uid_user', $request->uid_user)
+                                             ->where('uid_liga_oponente', $request->uid_liga)
+                                             ->first();
+                                             if($progreso){
+                                                 return "".$progreso->victorias;
+                                             }else{
+                                                return "0";
+                                             }
+         }
+        
 
          public function inscribirLigaCombate(Request $request)
          {
@@ -680,12 +693,17 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             ->get();
 
             $uid_user_oponente = "";
+            if(!$progreso){
+                $progreso = new ProgresoLiga;
+                $progreso->victorias = 0;
+                $progreso->derrotas = 0;
+            }
             $oponente_actual = 9 - $progreso->victorias;
             $contTop = count($top);
             if($contTop < $oponente_actual){
                 $uid_user_oponente = $top[$contTop - 1]->uid_user;
             }else{
-                $uid_user_oponente = $top[$oponente_actual - 1]->uid_user;
+                $uid_user_oponente = $top[$oponente_actual ]->uid_user;
             }
             
             $user_oponente  = \App\User::where('uid_user', $uid_user_oponente)->first();
