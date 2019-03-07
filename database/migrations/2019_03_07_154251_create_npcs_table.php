@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAvatarTable extends Migration
+class CreateNpcsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateAvatarTable extends Migration
      */
     public function up()
     {
-        Schema::create('avatar', function (Blueprint $table) {
+        Schema::create('npcs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('uid_avatar');
-            $table->string('nombre')->default('magic monster');
-            $table->decimal('exp',42,2);
+            $table->string('nombre');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateAvatarTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('avatar');
+        Schema::dropIfExists('npcs');
     }
 }

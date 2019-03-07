@@ -21,6 +21,7 @@ class CreateConfiguracionGlobalJuego2sTable extends Migration
             $table->float('efecto_ventaja_evolucion');
             $table->float('efecto_ventaja_elemento');
             $table->float('efecto_ventaja_bono');
+            $table->decimal('poder_maximo_posible',42,2);
             $table->timestamps();
         });
     }

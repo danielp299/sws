@@ -17,7 +17,7 @@ class CreateInscritosTorneosTable extends Migration
             $table->string('uid_user');
             $table->string('uid_torneo');
             $table->string('uid_avatar');
-            $table->integer('exp');
+            $table->decimal('exp',42,2);
             $table->timestamps();
         });
     }

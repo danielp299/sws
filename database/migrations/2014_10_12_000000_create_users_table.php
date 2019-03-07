@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('uid_user')->unique();
             //$table->string('name');
             $table->string('uid_avatar');
-            $table->integer('exp');
+            $table->decimal('exp',42,2);
             // $table->string('email')->unique();
             // $table->timestamp('email_verified_at')->nullable();
             // $table->string('password');
