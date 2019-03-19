@@ -303,7 +303,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     }
                 }
             }
-            if($victimas->count() > 10){
+            $esNPC = \App\npc::where('nombre', $random->uid_user)->first();
+
+            if($victimas->count() > 10 && !$esNPC){
                 $random->delete();
             }
 
@@ -508,7 +510,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             $ligaActual = \App\Liga::where('uid_user', $request->uid_user)->first();
             if($ligaActual) $ligaActual->delete();
             $tieneMedalla = \App\HistoricoMedalla::where('uid_user', $request->uid_user)->where('uid_gym',$gym->medal)->first();
-            if(!$tieneMedalla) return "ERROR 8";
+            //if(!$tieneMedalla) return "ERROR 8";
             //verificar que este en otra liga
             // debe tener la medalla
             $avatar = NULL;
@@ -699,8 +701,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $progreso->derrotas = 0;
             }
             $oponente_actual = 9 - $progreso->victorias;
+            
+
+            
             $contTop = count($top);
-            if($contTop < $oponente_actual){
+            if($contTop < $oponente_actual+1){
                 $uid_user_oponente = $top[$contTop - 1]->uid_user;
             }else{
                 $uid_user_oponente = $top[$oponente_actual ]->uid_user;

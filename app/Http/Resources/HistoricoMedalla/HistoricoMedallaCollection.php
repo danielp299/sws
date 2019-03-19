@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\HistoricoMedalla;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Resources\Json\Resource;
 
-class HistoricoMedallaCollection extends ResourceCollection
+class HistoricoMedallaCollection extends Resource
 {
     /**
      * Transform the resource collection into an array.
@@ -15,8 +15,8 @@ class HistoricoMedallaCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'user' => $this->uid_user,
-            'gym' => $this->uid_gym,
+            //'user' => $this->uid_user,
+            'id_medalla' => $this->uid_gym
         ];
     }
 }

@@ -15,8 +15,8 @@ class MedallaCollection extends Resource
     public function toArray($request)
     {
         return [
-            'user' => $this->uid_user,
-            'gym' => $this->uid_gym,
+            //'user' => $this->uid_user,
+            'id_medalla' => $this->uid_gym,
         ];
     }
 }
