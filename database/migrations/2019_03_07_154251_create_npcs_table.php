@@ -15,7 +15,7 @@ class CreateNpcsTable extends Migration
     {
         Schema::create('npcs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nombre');
+            $table->string('uid_user');
             $table->timestamps();
         });
     }

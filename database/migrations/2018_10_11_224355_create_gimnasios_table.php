@@ -27,6 +27,8 @@ class CreateGimnasiosTable extends Migration
         });
     }
 
+
+
     /**
      * Reverse the migrations.
      *
