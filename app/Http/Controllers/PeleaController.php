@@ -852,11 +852,27 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirTorneo(Request $request)
          {
+            
+            //return "medalla 0: " .$medallas[0]."medalla 1: ".$medallas[1]." fin";
             $torneo = \App\Torneo::where('uid_torneo', $request->uid_torneo)->first();
 
             $numeroMedallas = $torneo->medallas;
 
-            $medallas =\App\Medalla::where('uid_user', $request->uid_user)->count();
+            $medallasInscritas = explode(",", $request->medalla);
+            $medallas = 0;
+            //cuento si realmente tiene esas medallas
+            foreach ($medallasInscritas as $medalla){
+
+                $medallaValida = \App\Medalla::where('uid_user', $request->uid_user)
+                ->where('uid_gym', $medalla)
+                ->first();
+
+                if($medallaValida){
+                    $medallas++;
+                }
+            }
+
+            //$medallas =\App\Medalla::where('uid_user', $request->uid_user)->count();
 
             if($numeroMedallas <= $medallas)
             {
@@ -866,16 +882,26 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $user = \App\User::where('uid_user', $request->uid_user)->first();
                 $inscribir->uid_avatar = $user->uid_avatar;
                 $inscribir->exp = $user->exp;
+                
+
+                // borro las medallas disponibles que uso para la inscripcion
+
+                foreach ($medallasInscritas as $medalla){
+
+                    \App\Medalla::where('uid_user', $request->uid_user)
+                    ->where('uid_gym', $medalla)
+                    ->delete();
+                }
+
                 $inscribir->save();
-                $medallas =\App\Medalla::where('uid_user', $request->uid_user)
-                                        ->where('uid_gym', $request->uid_gym)
-                                        ->delete();
 
             }else{
                 return response()->json([
                     'error'=>'no tiene las suficientes medallas'
                 ]);
             }
+
+            
 
             return new InscritoTorneoResource($inscribir);
          }
@@ -969,4 +995,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             return ConcursoCollection::collection(Concurso::all());
          }
+
+       
     }

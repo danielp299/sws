@@ -14,7 +14,7 @@ class CreateTorneosTable extends Migration
     public function up()
     {
         Schema::create('torneos', function (Blueprint $table) {
-            $table->string('uid_torneo');
+            $table->string('uid_torneo')->unique()->index();
             $table->integer('medallas');
             $table->string('fecha');
         });
