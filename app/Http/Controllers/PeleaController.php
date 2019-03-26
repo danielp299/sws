@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+require __DIR__.'/vendor/autoload.php';
+
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+use Firebase\Auth\Token\Exception\InvalidToken;
+
 use Illuminate\Http\Request;
 
 use App\Victima;
@@ -58,14 +64,35 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         {
             $this->pelea = $pelea;
             $this->elementos =$ControladorElementos;
+            $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
+
+            $firebase = (new Factory)
+            ->withServiceAccount($serviceAccount)
+            ->create();
+
+
 
         }
 
-       /* public function elementosTest(){
+       public function EsUsuarioValido(Request $request){
+        $idTokenString = '...';
 
-            $ganador = $this->elementos->VerificarVentajaElemetoA("fuego","agua");
-            return $ganador;
-        }*/
+        try {
+            $verifiedIdToken = $firebase->getAuth()->verifyIdToken($idTokenString);
+        } catch (InvalidToken $e) {
+            echo $e->getMessage();
+        }
+        
+        $uid = $verifiedIdToken->getClaim('sub');
+        $user = $firebase->getAuth()->getUser($uid);
+
+        if($user){
+            return "si ".$user;
+        }
+
+
+        return "no ".$request->EsUsuarioValido;
+       }
 
         public function peleaBasica(Request $request)
         {
