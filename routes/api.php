@@ -41,4 +41,4 @@ Route::get('/detalleConcurso', 'PeleaController@detalleConcurso');
 Route::get('/gimnasios', 'PeleaController@todosLosGimnasios');
 Route::get('/torneos', 'PeleaController@todosLosTorneos');
 Route::get('/concursos', 'PeleaController@todosLosConcursos');
-//Route::get('/elementosTest', 'PeleaController@elementosTest'); miRankingLiga
+Route::get('/esUsuarioValido', 'PeleaController@esUsuarioValido');

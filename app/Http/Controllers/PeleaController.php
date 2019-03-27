@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-require __DIR__.'/vendor/autoload.php';
+//require __DIR__.'../../../vendor/autoload.php';
+
+use vendor\autoload;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
@@ -59,39 +61,53 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         protected $pelea;
         protected $elementos;
+        protected $firebase;
 
         function __construct(Pelea $pelea, ControladorElementos $ControladorElementos)
         {
             $this->pelea = $pelea;
             $this->elementos =$ControladorElementos;
-            $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
+            
 
-            $firebase = (new Factory)
-            ->withServiceAccount($serviceAccount)
-            ->create();
-
-
+            
 
         }
 
-       public function EsUsuarioValido(Request $request){
-        $idTokenString = '...';
+       public function esUsuarioValido(Request $request){
+
+        $AuthorizationToken = $request->header('Authorization');
+
+       
+        /**Esto deberia estar en el contructor pero no me funciona */
+       $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
+
+       $firebase = (new Factory)
+       ->withServiceAccount($serviceAccount)
+       //->withDatabaseUri('https://my-project.firebaseio.com')
+       ->create();
 
         try {
-            $verifiedIdToken = $firebase->getAuth()->verifyIdToken($idTokenString);
+            $verifiedIdToken = $firebase->getAuth()->verifyIdToken($AuthorizationToken);
+
+           // return "token ?? ".$verifiedIdToken;
         } catch (InvalidToken $e) {
+            return "no";
+            return response()->json(['error' => 'Unauthenticated.'], 401);
             echo $e->getMessage();
         }
         
         $uid = $verifiedIdToken->getClaim('sub');
-        $user = $firebase->getAuth()->getUser($uid);
+        $exp = $verifiedIdToken->getClaim('exp');
+        if($uid){
+            return "".$uid;
 
-        if($user){
-            return "si ".$user;
+            $user = $firebase->getAuth()->getUser($uid);
+
+            if($user){
+                return "".$uid." ".$exp;
+            }
         }
 
-
-        return "no ".$request->EsUsuarioValido;
        }
 
         public function peleaBasica(Request $request)
