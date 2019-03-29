@@ -91,8 +91,8 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
            // return "token ?? ".$verifiedIdToken;
         } catch (InvalidToken $e) {
-            return "no";
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+            return "Unauthenticated";
+            //return response()->json(['error' => 'Unauthenticated'], 401);
             echo $e->getMessage();
         }
         
@@ -112,6 +112,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function peleaBasica(Request $request)
         {
+
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
             
             $victimas = \App\Victima::all();
             $ganador = new User;
@@ -131,7 +135,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             $user_victima = \App\User::where('uid_user', $random->uid_user)->first();
 
-            $user =  \App\User::where('uid_user', $request->uid_user)->first();
+            $user =  \App\User::where('uid_user', $uid)->first();
 
             
             if($user){
@@ -145,7 +149,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     $avatar->save();
                     $user->avatar()->associate($avatar->id);
                     $user->save();
-                    $user = \App\User::where('uid_user', $request->uid_user)->first();
+                    $user = \App\User::where('uid_user', $uid)->first();
                 }
             }else{
                 $avatar = new Avatar;
@@ -153,7 +157,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $avatar->exp = $request->exp;
                 $avatar->save();
                 $user = new User;
-                $user->uid_user = $request->uid_user;
+                $user->uid_user = $uid;
                 $user->exp = 0;
                 $user->avatar()->associate($avatar->id);
                 $user->save();
@@ -170,11 +174,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             //$ganadorPelea = $this->pelea->simularPelea($request, $random);
             $ganadorPelea = $peleaSimulada["ganador"];
             
-            $usuario = $request->uid_user;
+            $usuario = $uid;
 
             if($ganadorPelea == $usuario){
 
-                $ganador = \App\User::where('uid_user',$request->uid_user)->get();
+                $ganador = \App\User::where('uid_user',$uid)->get();
                 if($ganador->isEmpty()){
                     $avatar = \App\Avatar::where('uid_avatar', $request->avatar)->get();
                     if($avatar->isEmpty())
@@ -188,33 +192,33 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     }
                     
                     $ganador = new User;
-                    $ganador->uid_user = $request->uid_user;
+                    $ganador->uid_user = $uid;
                     $ganador->avatar()->associate($avatar->uid_avatar);
                     $ganador->exp = $request->exp;
                     $ganador->save();
 
                     $ranking = new Ranking;
-                    $ranking->user()->associate($request->uid_user);
+                    $ranking->user()->associate($uid);
                     $ranking->puntos = 3;
                     $ranking->save();
 
                 }else{
 
-                    $ranking = \App\Ranking::where('uid_user', $request->uid_user)->get();
+                    $ranking = \App\Ranking::where('uid_user', $uid)->get();
                     if($ranking->isEmpty()){
                         $ranking = new Ranking;
-                        $ranking->user()->associate($request->uid_user);
+                        $ranking->user()->associate($uid);
                         $ranking->puntos = 3;
                         $ranking->save();
                     }
                     else{
-                        $ranking = \App\Ranking::where('uid_user', $request->uid_user)->first();
+                        $ranking = \App\Ranking::where('uid_user', $uid)->first();
                         $ranking->puntos += 3;
                         $ranking->save();
                     }
-                    $liga = \App\Liga::where('uid_user', $request->uid_user)->get();
+                    $liga = \App\Liga::where('uid_user', $uid)->get();
                     if(!$liga->isEmpty()){
-                        $liga = \App\Liga::where('uid_user', $request->uid_user)->first();
+                        $liga = \App\Liga::where('uid_user', $uid)->first();
                         $liga->puntos += 3;
                         $liga->save();
                     }
@@ -298,7 +302,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     }
                     
                 }
-                $perdedor = \App\User::where('uid_user', $request->uid_user)->get();
+                $perdedor = \App\User::where('uid_user', $uid)->get();
                 if($perdedor->isEmpty())
                 {
                     $avatar = \App\Avatar::where('uid_avatar', $request->avatar)->get();
@@ -312,35 +316,35 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                        $avatar = \App\Avatar::where('uid_avatar', $request->avatar)->first(); 
                     }
                     $perdedor = new User;
-                    $perdedor->uid_user = $request->uid_user;
+                    $perdedor->uid_user = $uid;
                     $perdedor->avatar()->associate($avatar->uid_avatar);
                     $perdedor->exp = $request->exp;
                    // $perdedor->ranking()->puntos = 1;
                     $perdedor->save();
 
                     $ranking = new Ranking;
-                    $ranking->user()->associate($request->uid_user);
+                    $ranking->user()->associate($uid);
                     $ranking->puntos = 1;
                     $ranking->save();
 
                 }else{
 
-                    $ranking = \App\Ranking::where('uid_user', $request->uid_user)->get();
+                    $ranking = \App\Ranking::where('uid_user', $uid)->get();
                     if($ranking->isEmpty()){
                         $ranking = new Ranking;
-                        $ranking->user()->associate($request->uid_user);
+                        $ranking->user()->associate($uid);
                         $ranking->puntos = 1;
                         $ranking->save();
                     }
                     else{
-                        $ranking = \App\Ranking::where('uid_user', $request->uid_user)->first();
+                        $ranking = \App\Ranking::where('uid_user', $uid)->first();
                         $ranking->puntos += 1;
                         $ranking->save();
                     } 
 
-                     $liga = \App\Liga::where('uid_user', $request->uid_user)->get();
+                     $liga = \App\Liga::where('uid_user', $uid)->get();
                     if(!$liga->isEmpty()){
-                        $liga = \App\Liga::where('uid_user', $request->uid_user)->first();
+                        $liga = \App\Liga::where('uid_user', $uid)->first();
                         $liga->puntos += 3;
                         $liga->save();
                     }
@@ -359,14 +363,18 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function agregarVictima(Request $request)
         {
-            $contVictimas = \App\Victima::where('uid_user', $request->uid)->count();
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
+            $contVictimas = \App\Victima::where('uid_user', $uid)->count();
             if($contVictimas > 2) return "ERROR ya esta 3 veces ";
             
             $datoMascota = \App\DatoMascota::where('id', $request->avatar)->first();
             if(!$datoMascota) return "ERROR Mascota ".$request->avatar." no encontrada";
 
             $avatar = NULL;
-            $user = \App\User::where('uid_user', $request->uid)->first();
+            $user = \App\User::where('uid_user', $uid)->first();
 
             if($user){
                 if($user->uid_avatar){
@@ -387,7 +395,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $avatar->exp = $request->exp;
                 $avatar->save();
                 $user = new User;
-                $user->uid_user = $request->uid;
+                $user->uid_user = $uid;
             }
             $user->exp = 0;
             $user->avatar()->associate($avatar->id);
@@ -459,6 +467,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function agregarAvatar(Request $request)
         {
+
+            /*$uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";*/
+
             $avatar = new Avatar;
             $avatar->uid_avatar = $request->avatar;
             $avatar->exp = $request->exp;
@@ -468,17 +481,23 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             return new AvatarResource($avatar);
         }
 
+        /// este metodo no esta optimizado se puede mejorar [ se debe mejorar ] cambiarlo para que use el uid
          public function consultarPerfil(Request $request){
+
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
             
-            $user = \App\User::where('uid_user', $request->uid)->first();
-            $perfil = \App\Perfil::where('uid_user', $request->uid)->get();
+            $user = \App\User::where('uid_user', $uid)->first();
+            $perfil = \App\Perfil::where('uid_user', $uid)->get();
             if($perfil->isEmpty()){
                 
                 $perfil = new Perfil;
                 $perfil->uid_user = $user->uid_user;
                 $perfil->uid_avatar = $user->uid_avatar;
 
-                $ranking = \App\Ranking::where('uid_user', $request->uid)->get();
+                $ranking = \App\Ranking::where('uid_user', $uid)->get();
                 
                 if($ranking->isEmpty()){
                 
@@ -487,15 +506,15 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 
                 }else{
                 
-                    $ranking = \App\Ranking::where('uid_user', $request->uid)->first();
+                    $ranking = \App\Ranking::where('uid_user', $uid)->first();
                     $perfil->puntos = $ranking->puntos;
-                    $perfil->ranking = $this->pelea->ranking($request->uid);
+                    $perfil->ranking = $this->pelea->ranking($uid);
                 }
 
             }else{
-                $perfil = \App\Perfil::where('uid_user', $request->uid)->first();
+                $perfil = \App\Perfil::where('uid_user', $uid)->first();
 
-                 $ranking = \App\Ranking::where('uid_user', $request->uid)->get();
+                 $ranking = \App\Ranking::where('uid_user', $uid)->get();
                 
                 if($ranking->isEmpty()){
                 
@@ -504,9 +523,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 
                 }else{
                 
-                    $ranking = \App\Ranking::where('uid_user', $request->uid)->first();
+                    $ranking = \App\Ranking::where('uid_user', $uid)->first();
                     $perfil->puntos = $ranking->puntos;
-                    $perfil->ranking = $this->pelea->ranking($request->uid);
+                    $perfil->ranking = $this->pelea->ranking($uid);
                 }
             }
 
@@ -531,7 +550,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function miRankingGlobal(Request $request){
 
-            $user = $request->uid;
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
+            $user = $uid;
             $ranking = \App\Ranking::all();
             $rankingGlobal = \App\Ranking::orderBy('puntos','desc')->get();
             $position = $rankingGlobal->search(function($ranking, $key) use ($user){
@@ -545,14 +568,18 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function afiliacionGym(Request $request){
 
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
             $gym = \App\Gimnasio::where('uid_gym', $request->uid_gym)->first();
             if(!$gym) return "ERROR 7";
-            $user = \App\User::where('uid_user', $request->uid_user)->first();
+            $user = \App\User::where('uid_user', $uid)->first();
             $datoMascota = \App\DatoMascota::where('id', $request->uid_avatar)->first();
             if(!$datoMascota) return "ERROR 3 ".$request->avatar."";
-            $ligaActual = \App\Liga::where('uid_user', $request->uid_user)->first();
+            $ligaActual = \App\Liga::where('uid_user', $uid)->first();
             if($ligaActual) $ligaActual->delete();
-            $tieneMedalla = \App\HistoricoMedalla::where('uid_user', $request->uid_user)->where('uid_gym',$gym->medal)->first();
+            $tieneMedalla = \App\HistoricoMedalla::where('uid_user', $uid)->where('uid_gym',$gym->medal)->first();
             //if(!$tieneMedalla) return "ERROR 8";
             //verificar que este en otra liga
             // debe tener la medalla
@@ -573,7 +600,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             $avatar->exp = $request->exp;
             $avatar->save();
 
-            $user->uid_user = $request->uid_user;
+            $user->uid_user = $uid;
             $user->avatar()->associate($avatar->id);
             $user->exp = 0;
             $user->save();
@@ -594,7 +621,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     $avatar->save();
 
                     $user = new User;
-                    $user->uid_user = $request->uid_user;
+                    $user->uid_user = $uid;
                     $user->avatar()->associate($avatar->uid_avatar);
                     $user->exp = $request->exp;
                     $user->save();
@@ -610,7 +637,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                    $avatar = \App\Avatar::where('uid_avatar', $request->uid_avatar)->first();
                     
                     $user = new User;
-                    $user->uid_user = $request->uid_user;
+                    $user->uid_user = $uid;
                     $user->avatar()->associate($avatar->uid_avatar);
                     $user->exp = $request->exp;
                     $user->save();
@@ -626,7 +653,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             }else{
 
-                $user = \App\User::where('uid_user', $request->uid_user)->first();
+                $user = \App\User::where('uid_user', $uid)->first();
                 $liga = new Liga;
                 $liga->uid_liga = $gym->uid_gym;
                 $liga->user()->associate($user->uid_user);
@@ -640,7 +667,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function desafiliacionGym(Request $request)
          {
-            $desafiliar = \App\Liga::where('uid_user', $request->uid_user)
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
+            $desafiliar = \App\Liga::where('uid_user', $uid)
                                     ->where('uid_gym', $request->uid_gym)->delete();
 
             return 'Exitoso';
@@ -662,7 +693,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function miRankingLiga(Request $request){
 
-            $progreso   = \App\ProgresoLiga::where('uid_user', $request->uid_user)
+            $progreso   = \App\ProgresoLiga::where('uid_user', $uid)
                                              ->where('uid_liga_oponente', $request->uid_liga)
                                              ->first();
                                              if($progreso){
@@ -675,15 +706,19 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirLigaCombate(Request $request)
          {
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
             $inscribir = new ProgresoLiga;
             $inscribir->uid_liga_oponente = $request->uid_liga_oponente;
-            $liga = \App\Liga::where('uid_user', $request->uid_user)
+            $liga = \App\Liga::where('uid_user', $uid)
                                 ->where('uid_liga', $request->uid_liga)->get();
             
             if($liga->isEmpty())
             {
                 $inscribir->uid_liga = null;
-                $user = \App\User::where('uid_user', $request->uid_user)->first();
+                $user = \App\User::where('uid_user', $uid)->first();
                 $inscribir->uid_user = $user->uid_user;
                 $inscribir->victorias = 0;
                 $inscribir->derrotas = 0; 
@@ -691,7 +726,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             }
             else
             {
-                $liga = \App\Liga::where('uid_user', $request->uid_user)
+                $liga = \App\Liga::where('uid_user', $uid)
                                 ->where('uid_liga', $request->uid_liga)->first();
                 $inscribir->liga()->associate($liga->uid_liga);
                 $inscribir->ligaUser()->associate($liga->uid_user);
@@ -707,19 +742,25 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function misDatosLiga(Request $request)
          {
-            $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)->first();
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
+            $progreso = \App\ProgresoLiga::where('uid_user', $uid)->first();
 
             return new ProgresoLigaResource($progreso);
          }
 
          public function peleaLiga(Request $request)
          {
-
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
             
-            $progreso   = \App\ProgresoLiga::where('uid_user', $request->uid_user)
+            $progreso   = \App\ProgresoLiga::where('uid_user', $uid)
                                              ->where('uid_liga_oponente', $request->uid_liga_oponente)
                                              ->first();
-            $user       = \App\User::where('uid_user', $request->uid_user)->first();
+            $user       = \App\User::where('uid_user', $uid)->first();
             if($user->avatar->uid_avatar == $request->avatar){
                 $user->avatar->exp = $request->exp;
                 $user->avatar->save();
@@ -730,7 +771,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $avatar->save();
                 $user->avatar()->associate($avatar->id);
                 $user->save();
-                $user = \App\User::where('uid_user', $request->uid_user)->first();
+                $user = \App\User::where('uid_user', $uid)->first();
             }
 
             $top = Liga::where('uid_liga', $request->uid_liga_oponente)
@@ -781,10 +822,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             if($ganador == $usuario)
             {
-                $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)->first();
+                $progreso = \App\ProgresoLiga::where('uid_user', $uid)->first();
                 if(!$progreso){
                     $progreso = new ProgresoLiga();
-                    $progreso->uid_user = $request->uid_user;
+                    $progreso->uid_user = $uid;
                     $progreso->derrotas = 0;
                     $progreso->victorias = 0;
                 }
@@ -806,10 +847,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
              }
             
             }else{
-                $progreso = \App\ProgresoLiga::where('uid_user', $request->uid_user)->first();
+                $progreso = \App\ProgresoLiga::where('uid_user', $uid)->first();
                 if(!$progreso){
                     $progreso = new ProgresoLiga();
-                    $progreso->uid_user = $request->uid_user;
+                    $progreso->uid_user = $uid;
                     $progreso->derrotas = 0;
                     $progreso->victorias = 0;
                 }
@@ -851,7 +892,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $progreso->delete();
             }
 
-            $ligaActual = \App\Liga::where('uid_user', $request->uid_user)->first();
+            $ligaActual = \App\Liga::where('uid_user', $uid)->first();
             
             return response()->json([
                 'jugadorA' => $resultadoPelea["jugadorA"],
@@ -882,20 +923,28 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function misMedallas(Request $request)
          {
-        
-            return MedallaResource::collection(Medalla::where('uid_user', $request->uid_user)->get());
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
+            return MedallaResource::collection(Medalla::where('uid_user', $uid)->get());
          }
 
          public function todasMisMedallas(Request $request)
          {
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
             
-            return HistoricoMedallaCollection::collection(HistoricoMedalla::where('uid_user', $request->uid_user)->get());   
+            return HistoricoMedallaCollection::collection(HistoricoMedalla::where('uid_user', $uid)->get());   
             
          }
 
          public function inscribirTorneo(Request $request)
          {
-            
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
             //return "medalla 0: " .$medallas[0]."medalla 1: ".$medallas[1]." fin";
             $torneo = \App\Torneo::where('uid_torneo', $request->uid_torneo)->first();
 
@@ -906,7 +955,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             //cuento si realmente tiene esas medallas
             foreach ($medallasInscritas as $medalla){
 
-                $medallaValida = \App\Medalla::where('uid_user', $request->uid_user)
+                $medallaValida = \App\Medalla::where('uid_user', $uid)
                 ->where('uid_gym', $medalla)
                 ->first();
 
@@ -915,14 +964,14 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 }
             }
 
-            //$medallas =\App\Medalla::where('uid_user', $request->uid_user)->count();
+            //$medallas =\App\Medalla::where('uid_user', $uid)->count();
 
             if($numeroMedallas <= $medallas)
             {
                 $inscribir = new InscritosTorneo;
                 $inscribir->uid_torneo = $request->uid_torneo;
-                $inscribir->uid_user = $request->uid_user;
-                $user = \App\User::where('uid_user', $request->uid_user)->first();
+                $inscribir->uid_user = $uid;
+                $user = \App\User::where('uid_user', $uid)->first();
                 $inscribir->uid_avatar = $user->uid_avatar;
                 $inscribir->exp = $user->exp;
                 
@@ -931,7 +980,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
                 foreach ($medallasInscritas as $medalla){
 
-                    \App\Medalla::where('uid_user', $request->uid_user)
+                    \App\Medalla::where('uid_user', $uid)
                     ->where('uid_gym', $medalla)
                     ->delete();
                 }
@@ -958,12 +1007,16 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirConcurso(Request $request)
          {
+            $uid = esUsuarioValido($request->header('Authorization'));
+            if($uid == "Unauthenticated")
+            return "ERROR 11";
+
             $concurso = \App\Concurso::where('uid_concurso', $request->uid_concurso)->first();
 
-            $user = \App\User::where('uid_user', $request->uid_user)->get();
+            $user = \App\User::where('uid_user', $uid)->get();
             if($user->isEmpty()){
                 $user = new User;
-                $user->uid_user = $request->uid_user;
+                $user->uid_user = $uid;
                 $avatar = \App\Avatar::where('uid_avatar', $request->uid_avatar)->get();
                 if($avatar->isEmpty()){
                     $avatar = new Avatar;
@@ -976,7 +1029,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $user->save();
 
             }
-            $user = \App\User::where('uid_user', $request->uid_user)->first();
+            $user = \App\User::where('uid_user', $uid)->first();
             $avatar = \App\Avatar::where('uid_avatar', $user->uid_avatar)->get();
 
             if($avatar->isEmpty()){
@@ -986,7 +1039,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     $avatar->save();
             }
             $avatar = \App\Avatar::where('uid_avatar', $user->uid_avatar)->first();
-            $verificar = \App\InscritoConcurso::where('uid_user', $request->uid_user)->get();
+            $verificar = \App\InscritoConcurso::where('uid_user', $uid)->get();
             if($verificar->isEmpty()){
               $inscrito = new InscritoConcurso;
               $inscrito->uid_concurso = $request->uid_concurso;
