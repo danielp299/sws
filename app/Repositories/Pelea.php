@@ -135,7 +135,8 @@ use App\Repositories\ControladorElementos;
 
 	 public function simularTorneo()
 	 {
-	 	$date = Carbon::now();
+		 $date = Carbon::now();
+		 
 	 	$day = $date->format('l');
 	 	//dd($day);
 	 	$torneo = \App\Torneo::where('fecha', $day)->get();
