@@ -79,7 +79,16 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
        
         /**Esto deberia estar en el contructor pero no me funciona */
-       $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
+       //$serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
+       //['project_id', 'client_id', 'client_email', 'private_key'];
+       
+       $arrayServiceAccount = array(
+            'project_id' => env('FIREBASE_PROYECT_ID'),
+            'client_id' => env('FIREBASE_CLIENT_ID'),
+            'client_email' => env('FIREBASE_CLIENT_EMAIL'),
+            'private_key' => env('FIREBASE_PRIVATE_KEY'));
+       
+       $serviceAccount = ServiceAccount::fromArray( $arrayServiceAccount );
 
        $firebase = (new Factory)
        ->withServiceAccount($serviceAccount)

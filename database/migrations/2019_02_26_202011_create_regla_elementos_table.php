@@ -16,7 +16,7 @@ class CreateReglaElementosTable extends Migration
         Schema::create('regla_elementos', function (Blueprint $table) {
             $table->increments('id');
             $table->string('nombre');
-            $table->string('venceA');
+            $table->string('vence_a');
             $table->timestamps();
         });
     }
