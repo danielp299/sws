@@ -111,12 +111,12 @@ use App\Repositories\ControladorElementos;
 		 //return $ganador;
 		 
 		 return [
-			'jugadorA' => $user->uid_user,
+			'jugadorA' => $user->nombre,
 			'avatarA' => $user->avatar->uid_avatar,
 			'evolucionA'=> 1,
 			'experienciaA'=> number_format($usuarioExpTotal, 2, '.', ''),
 			//'experienciaPoderA'=> "".$usuarioExpTotal,
-			'jugadorB' => $user_oponente->uid_user,
+			'jugadorB' => $user_oponente->nombre,
 			'avatarB' => $user_oponente->avatar->uid_avatar,
 			'evolucionB'=> 1,
 			'experienciaB'=> number_format($oponenteExpTotal, 2, '.', ''),

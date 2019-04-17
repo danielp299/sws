@@ -73,21 +73,22 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         }
 
-       public function esUsuarioValido(Request $request){
 
-        $AuthorizationToken = $request->header('Authorization');
+       public function esUsuarioValido(string $token){
+
+        $AuthorizationToken = $token;
 
        
         /**Esto deberia estar en el contructor pero no me funciona */
-       //$serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
-       //['project_id', 'client_id', 'client_email', 'private_key'];
+      // $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/minimagicmostersidle-firebase-adminsdk-076z1-47e552c54a.json');
        
+
        $arrayServiceAccount = array(
-            'project_id' => env('FIREBASE_PROYECT_ID'),
-            'client_id' => env('FIREBASE_CLIENT_ID'),
-            'client_email' => env('FIREBASE_CLIENT_EMAIL'),
-            'private_key' => env('FIREBASE_PRIVATE_KEY'));
-       
+            "project_id" => env('FIREBASE_PROYECT_ID'),
+            "client_id" => env('FIREBASE_CLIENT_ID'),
+            "client_email" => env('FIREBASE_CLIENT_EMAIL'),
+            "private_key" => env('FIREBASE_PRIVATE_KEY'));
+
        $serviceAccount = ServiceAccount::fromArray( $arrayServiceAccount );
 
        $firebase = (new Factory)
@@ -121,8 +122,14 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function peleaBasica(Request $request)
         {
+            
+            
 
-            $uid = esUsuarioValido($request->header('Authorization'));
+            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+           
+            //return "project_id ".$uid["project_id"]." client_id ".$uid["client_id"];
+            //return $request->header('Authorization');
+
             if($uid == "Unauthenticated")
             return "ERROR 11";
             
@@ -167,6 +174,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $avatar->save();
                 $user = new User;
                 $user->uid_user = $uid;
+                $user->nombre = $request->nombre;
                 $user->exp = 0;
                 $user->avatar()->associate($avatar->id);
                 $user->save();
