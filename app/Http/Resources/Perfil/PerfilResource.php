@@ -18,7 +18,14 @@ class PerfilResource extends JsonResource
             'uid_user' => $this->uid_user,
             'avatar' => $this->uid_avatar,
             'puntos' => $this->puntos,
-            'ranking' => $this->ranking
+            'ranking' => $this->ranking,
+            'gimnasio' => 'kandelo',
+            'nombre' => 'pepe',
+            'poder' => '99999',
+            'ligas' => 'pronto',
+            'medallas' => 'pronto',
+            'torneos' => 'pronto',
+            'concursos' => 'pronto'
         ];
     }
 }

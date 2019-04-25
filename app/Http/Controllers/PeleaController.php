@@ -503,13 +503,46 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         /// este metodo no esta optimizado se puede mejorar [ se debe mejorar ] cambiarlo para que use el uid
          public function consultarPerfil(Request $request){
 
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
-            if($uid == "Unauthenticated")
-            return "ERROR 11";
+            $uid = "";
+
+            if($request->header('Authorization')){
+                $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+                if($uid == "Unauthenticated")
+                return "ERROR 11";
+            }else{
+                $uid = $request->nombre;
+            }
+
+            
 
             
             $user = \App\User::where('uid_user', $uid)->first();
+
+            if($user){
+                $perfil = \App\Perfil::where('uid_user', $uid)->first();
+
+            }else{
+                $avatar = new Avatar;
+                $avatar->uid_avatar = $request->avatar;
+                $avatar->exp = 0;
+                $avatar->save();  
+
+                $user = new User;
+                $user->uid_user = $uid;
+                $user->exp = 0;
+                $user->avatar()->associate($avatar->id);
+                $user->save();  
+
+                $perfil = new Perfil;
+                $perfil->uid_user = $user->uid_user;
+                $perfil->uid_avatar = $avatar->uid_avatar;
+                $perfil->puntos = 0;
+                $perfil->ranking = 0;
+                $perfil->save();
+            }
+
             $perfil = \App\Perfil::where('uid_user', $uid)->get();
+
             if($perfil->isEmpty()){
                 
                 $perfil = new Perfil;
@@ -1112,5 +1145,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             return ConcursoCollection::collection(Concurso::all());
          }
 
+         /*public function crearUsuarioNuevo(){
+
+
+         }*/
        
     }
