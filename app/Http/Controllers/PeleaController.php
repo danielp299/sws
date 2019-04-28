@@ -168,6 +168,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     $user->save();
                     $user = \App\User::where('uid_user', $uid)->first();
                 }
+
+                if($user->nombre !== $request->nombre){
+                    $user->nombre = $request->nombre;
+                    $user->save();
+                }
             }else{
                 $avatar = new Avatar;
                 $avatar->uid_avatar = $request->avatar;
@@ -814,6 +819,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                                              ->where('uid_liga_oponente', $request->uid_liga_oponente)
                                              ->first();
             $user       = \App\User::where('uid_user', $uid)->first();
+            
             if($user->avatar->uid_avatar == $request->avatar){
                 $user->avatar->exp = $request->exp;
                 $user->avatar->save();
@@ -825,6 +831,11 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $user->avatar()->associate($avatar->id);
                 $user->save();
                 $user = \App\User::where('uid_user', $uid)->first();
+            }
+
+            if($user->nombre !== $request->nombre){
+                $user->nombre = $request->nombre;
+                $user->save();
             }
 
             $top = Liga::where('uid_liga', $request->uid_liga_oponente)
