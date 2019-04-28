@@ -16,17 +16,22 @@ class PerfilResource extends JsonResource
      */
     public function toArray($request)
     {
+        $gimnasio = "";
         $liga = \App\Liga::where('uid_user', $this->uid_user)->first();
-        
+
+        if($liga){
+            $gimnasio = $liga->uid_gym;
+        }
+
 
         return [
             'uid_user' => $this->uid_user,
             'avatar' => $this->uid_avatar,
             'puntos' => $this->puntos,
             'ranking' => $this->ranking,
-            'gimnasio' => $liga->uid_gym,
-            'nombreAvatar' => 'pepe',
-            'nombreJugador' => 'pepe',
+            'gimnasio' => $gimnasio ,
+            'nombreAvatar' => 'avatar',
+            'nombreJugador' => 'player',
             'poder' => '99999',
             'ligas' => 'pronto',
             'medallas' => 'pronto',

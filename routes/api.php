@@ -41,4 +41,5 @@ Route::get('/detalleConcurso', 'PeleaController@detalleConcurso');
 Route::get('/gimnasios', 'PeleaController@todosLosGimnasios');
 Route::get('/torneos', 'PeleaController@todosLosTorneos');
 Route::get('/concursos', 'PeleaController@todosLosConcursos');
-Route::get('/esUsuarioValido', 'PeleaController@esUsuarioValido');
+//Route::get('/esUsuarioValido', 'PeleaController@esUsuarioValido');
+Route::get('/detalleGimnasio', 'PeleaController@gimnasio');

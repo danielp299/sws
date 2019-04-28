@@ -525,7 +525,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
             if($user){
                 $perfil = \App\Perfil::where('uid_user', $uid)->first();
-
             }else{
                 $avatar = new Avatar;
                 $avatar->uid_avatar = $request->avatar;
@@ -546,15 +545,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 $perfil->save();
             }
 
-            $perfil = \App\Perfil::where('uid_user', $uid)->get();
-
-            if($perfil->isEmpty()){
-                
-                $perfil = new Perfil;
-                $perfil->uid_user = $user->uid_user;
-
-                $avatar = \App\Avatar::where('uid_avatar', $user->uid_avatar)->get();
-                $perfil->uid_avatar = $avatar->uid_avatar;
+            if($perfil){
 
                 $ranking = \App\Ranking::where('uid_user', $uid)->get();
                 
@@ -569,11 +560,18 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                     $perfil->puntos = $ranking->puntos;
                     $perfil->ranking = $this->pelea->ranking($uid);
                 }
-
+                
             }else{
-                $perfil = \App\Perfil::where('uid_user', $uid)->first();
+                $perfil = new Perfil;
+                $perfil->uid_user = $user->uid_user;
 
-                 $ranking = \App\Ranking::where('uid_user', $uid)->get();
+                $avatar = \App\Avatar::where('id', $user->uid_avatar)->first();
+
+                //return "user".$user."avatar ".$avatar;      
+
+                $perfil->uid_avatar = $avatar->uid_avatar;
+
+                $ranking = \App\Ranking::where('uid_user', $uid)->get();
                 
                 if($ranking->isEmpty()){
                 
@@ -752,14 +750,16 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function miRankingLiga(Request $request){
 
+            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+
             $progreso   = \App\ProgresoLiga::where('uid_user', $uid)
                                              ->where('uid_liga_oponente', $request->uid_liga)
                                              ->first();
-                                             if($progreso){
-                                                 return "".$progreso->victorias;
-                                             }else{
-                                                return "0";
-                                             }
+           if($progreso){
+                return "".$progreso->victorias;
+           }else{
+                return "0";
+           }
          }
         
 
@@ -1156,6 +1156,40 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
          public function todosLosConcursos(){
 
             return ConcursoCollection::collection(Concurso::all());
+         }
+
+         //muchas consultas hay que hacer una tarea programada
+         public function gimnasio(Request $request){
+
+            $lider = Liga::where('uid_liga', $request->id_gym)
+            ->orderBy('puntos','desc')
+            ->first();
+
+
+            $puntos = Liga::where('uid_liga', $request->id_gym)
+            ->get()->sum('puntos');
+
+
+            $cont = Liga::where('uid_liga', $request->id_gym)
+            ->get()->count();
+
+            $user =  \App\User::where('uid_user', $lider->uid_user)->first();
+            $avatar = \App\Avatar::where('id', $user->uid_avatar)->first();
+
+            $nombre = $user->nombre;
+            $mascota = $avatar->uid_avatar;
+
+            //$puntos = $ligaCompleta.sum('puntos');
+
+            return [
+                'uid_lider' => $lider->uid_user,
+                'lider' => $nombre,
+                'avatar' => $mascota,
+                'puntos' => $puntos,
+                'miembros' => $cont,
+                'ranking' => 'no'
+            ];
+
          }
 
          /*public function crearUsuarioNuevo(){
