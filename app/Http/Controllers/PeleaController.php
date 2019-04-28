@@ -552,7 +552,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 
                 $perfil = new Perfil;
                 $perfil->uid_user = $user->uid_user;
-                $perfil->uid_avatar = $user->uid_avatar;
+
+                $avatar = \App\Avatar::where('uid_avatar', $user->uid_avatar)->get();
+                $perfil->uid_avatar = $avatar->uid_avatar;
 
                 $ranking = \App\Ranking::where('uid_user', $uid)->get();
                 
