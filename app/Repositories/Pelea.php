@@ -63,6 +63,7 @@ use App\Repositories\ControladorElementos;
 		$ventajaA = 0;
 		$ventajaB = 0;
 		$mascotaA =  \App\DatoMascota::where('id',$user->avatar->uid_avatar)->first();
+		
 		$mascotaB =  \App\DatoMascota::where('id',$user_oponente->avatar->uid_avatar)->first();
 		
 		if($mascotaA == NULL ){

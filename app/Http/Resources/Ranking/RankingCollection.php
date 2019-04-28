@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Ranking;
 
 use Illuminate\Http\Resources\Json\Resource;
+use App\User;
 
 class RankingCollection extends Resource
 {
@@ -16,6 +17,7 @@ class RankingCollection extends Resource
     {
         return [
             'uid_user' => $this->uid_user,
+            'nombre' => \App\User::where('uid_user', $this->uid_user)->first()->nombre,
             'puntos' => $this->puntos
         ];
     }

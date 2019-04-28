@@ -16,7 +16,9 @@ class CreatePerfilesTable extends Migration
         Schema::create('perfiles', function (Blueprint $table) {
             $table->increments('id');
             $table->string('uid_user');
+            $table->string('nombre_jugador');
             $table->string('uid_avatar');
+            $table->string('nombre_avatar');
             $table->integer('puntos');
             $table->integer('ranking');
             $table->timestamps();
