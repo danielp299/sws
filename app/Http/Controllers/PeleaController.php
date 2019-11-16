@@ -32,6 +32,7 @@ use App\Concurso;
 use App\InscritoConcurso;
 use App\DetalleConcurso;
 use App\ReglaElemento;
+use App\mensajes;
 
 use Illuminate\Http\Response;
     
@@ -1192,9 +1193,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          }
 
-         /*public function crearUsuarioNuevo(){
-
-
-         }*/
+         public function guardarMensaje(){
+            $mensaje = new mensajes;
+            //$mensaje->id = rand
+            $mensaje->save();
+         }
        
     }
