@@ -16,6 +16,7 @@ class LigaCollection extends Resource
     {
         return [
             'user' => $this->uid_user,
+            'nombre' => \App\User::where('uid_user', $this->uid_user)->first()->nombre,
             'puntos' => $this->puntos,
         ];
     }

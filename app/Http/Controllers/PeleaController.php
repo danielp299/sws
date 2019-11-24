@@ -32,6 +32,7 @@ use App\Concurso;
 use App\InscritoConcurso;
 use App\DetalleConcurso;
 use App\ReglaElemento;
+use App\mensajes;
 
 use Illuminate\Http\Response;
     
@@ -515,12 +516,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
                 if($uid == "Unauthenticated")
                 return "ERROR 11";
             }else{
-                $uid = $request->nombre;
+                $uid = $request->uid;
             }
 
-            
-
-            
             $user = \App\User::where('uid_user', $uid)->first();
 
             if($user){
@@ -742,10 +740,9 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function topRankingLiga(Request $request)
          {
-          
-            return LigaCollection::collection(Liga::where('uid_liga', $request->uid_liga)
-                                ->orderBy('puntos','desc')
-                                ->get());                   
+             return LigaCollection::collection(Liga::where('uid_liga', $request->uid_liga)
+             ->orderBy('puntos','desc')
+             ->get()); 
          }
 
          public function miRankingLiga(Request $request){
@@ -1192,9 +1189,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          }
 
-         /*public function crearUsuarioNuevo(){
-
-
-         }*/
+         public function guardarMensaje(){
+            $mensaje = new mensajes;
+            //$mensaje->id = rand
+            $mensaje->save();
+         }
        
     }
