@@ -79,15 +79,10 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             "client_email" => env('FIREBASE_CLIENT_EMAIL'),
             "private_key" => env('FIREBASE_PRIVATE_KEY'));
 
-       $serviceAccount = ServiceAccount::fromArray( $arrayServiceAccount );
-
-       $firebase = (new Factory)
-       ->withServiceAccount($serviceAccount)
-       //->withDatabaseUri('https://my-project.firebaseio.com')
-       ->create();
+       $firebase = (new Factory)->withServiceAccount($arrayServiceAccount);
 
         try {
-            $verifiedIdToken = $firebase->getAuth()->verifyIdToken($AuthorizationToken);
+            $verifiedIdToken = $firebase->auth->verifyIdToken($AuthorizationToken);
 
            // return "token ?? ".$verifiedIdToken;
         } catch (InvalidToken $e) {
@@ -101,7 +96,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         if($uid){
             return "".$uid;
 
-            $user = $firebase->getAuth()->getUser($uid);
+            $user = $firebase->auth->getUser($uid);
 
             if($user){
                 return "".$uid." ".$exp;
@@ -112,8 +107,6 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function peleaBasica(Request $request)
         {
-            
-            
 
             $uid = $this->esUsuarioValido($request->header('Authorization'));
            
