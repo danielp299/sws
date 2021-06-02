@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources\Ranking;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 use App\User;
 
-class RankingCollection extends Resource
+class RankingCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.

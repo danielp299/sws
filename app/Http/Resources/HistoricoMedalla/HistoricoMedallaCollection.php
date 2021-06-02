@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\HistoricoMedalla;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class HistoricoMedallaCollection extends Resource
+class HistoricoMedallaCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.

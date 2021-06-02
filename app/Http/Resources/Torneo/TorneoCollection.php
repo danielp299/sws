@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Torneo;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class TorneoCollection extends Resource
+class TorneoCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
