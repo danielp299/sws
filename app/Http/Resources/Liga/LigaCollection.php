@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\Liga;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class LigaCollection extends Resource
+class LigaCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.

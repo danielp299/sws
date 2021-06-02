@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-//require __DIR__.'../../../vendor/autoload.php';
-
-use vendor\autoload;
-
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use Firebase\Auth\Token\Exception\InvalidToken;
@@ -26,18 +22,14 @@ use App\Medalla;
 use App\HistoricoMedalla;
 use App\Torneo;
 use App\InscritosTorneo;
-use App\TorneosJugado;
 use App\DetalleTorneo;
 use App\Concurso;
 use App\InscritoConcurso;
 use App\DetalleConcurso;
-use App\ReglaElemento;
 use App\mensajes;
 
 use Illuminate\Http\Response;
     
-use App\Http\Resources\User\UserResource;
-use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\Ranking\RankingCollection;
 use App\Http\Resources\Liga\LigaCollection;
 use App\Http\Resources\Victima\VictimaResource;
@@ -45,7 +37,6 @@ use App\Http\Resources\Avatar\AvatarResource;
 use App\Http\Resources\Perfil\PerfilResource;
 use App\Http\Resources\Liga\LigaResource;
 use App\Http\Resources\Medalla\MedallaResource;
-use App\Http\Resources\Medalla\MedallaCollection;
 use App\Http\Resources\HistoricoMedalla\HistoricoMedallaCollection;
 use App\Http\Resources\Gimnasio\GimnasioCollection;
 use App\Http\Resources\Torneo\TorneoCollection;
@@ -54,7 +45,6 @@ use App\Http\Resources\DetalleTorneo\DetalleTorneoCollection;
 use App\Http\Resources\DetalleConcurso\DetalleConcursoCollection;
 use App\Http\Resources\ProgresoLiga\ProgresoLigaResource;
 use App\Http\Resources\InscritoTorneo\InscritoTorneoResource;
-use App\Http\Resources\TorneoJugado\TorneoJugadoResource;
 use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
     class PeleaController extends Controller
@@ -68,10 +58,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         {
             $this->pelea = $pelea;
             $this->elementos =$ControladorElementos;
-            
-
-            
-
+       
         }
 
 
@@ -85,20 +72,16 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
        
 
        $arrayServiceAccount = array(
+           "type"=>"service_account",
             "project_id" => env('FIREBASE_PROYECT_ID'),
             "client_id" => env('FIREBASE_CLIENT_ID'),
             "client_email" => env('FIREBASE_CLIENT_EMAIL'),
             "private_key" => env('FIREBASE_PRIVATE_KEY'));
 
-       $serviceAccount = ServiceAccount::fromArray( $arrayServiceAccount );
-
-       $firebase = (new Factory)
-       ->withServiceAccount($serviceAccount)
-       //->withDatabaseUri('https://my-project.firebaseio.com')
-       ->create();
+       $firebase = (new Factory)->withServiceAccount($arrayServiceAccount);
 
         try {
-            $verifiedIdToken = $firebase->getAuth()->verifyIdToken($AuthorizationToken);
+            $verifiedIdToken = $firebase->auth->verifyIdToken($AuthorizationToken);
 
            // return "token ?? ".$verifiedIdToken;
         } catch (InvalidToken $e) {
@@ -112,7 +95,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
         if($uid){
             return "".$uid;
 
-            $user = $firebase->getAuth()->getUser($uid);
+            $user = $firebase->auth->getUser($uid);
 
             if($user){
                 return "".$uid." ".$exp;
@@ -123,10 +106,8 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function peleaBasica(Request $request)
         {
-            
-            
 
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
            
             //return "project_id ".$uid["project_id"]." client_id ".$uid["client_id"];
             //return $request->header('Authorization');
@@ -388,7 +369,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
         public function agregarVictima(Request $request)
         {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -512,7 +493,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
             $uid = "";
 
             if($request->header('Authorization')){
-                $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+                $uid = $this->esUsuarioValido($request->header('Authorization'));
                 if($uid == "Unauthenticated")
                 return "ERROR 11";
             }else{
@@ -605,7 +586,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function miRankingGlobal(Request $request){
 
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -623,7 +604,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function afiliacionGym(Request $request){
 
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -722,7 +703,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function desafiliacionGym(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -747,7 +728,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function miRankingLiga(Request $request){
 
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
 
             $progreso   = \App\ProgresoLiga::where('uid_user', $uid)
                                              ->where('uid_liga_oponente', $request->uid_liga)
@@ -762,7 +743,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirLigaCombate(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             
             if($uid == "Unauthenticated")
             return "ERROR 11";
@@ -799,7 +780,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function misDatosLiga(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -810,7 +791,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function peleaLiga(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
             
@@ -986,7 +967,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function misMedallas(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 
@@ -995,7 +976,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function todasMisMedallas(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
             
@@ -1005,7 +986,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirTorneo(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
             //return "medalla 0: " .$medallas[0]."medalla 1: ".$medallas[1]." fin";
@@ -1070,7 +1051,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
 
          public function inscribirConcurso(Request $request)
          {
-            $uid = PeleaController::esUsuarioValido($request->header('Authorization'));
+            $uid = $this->esUsuarioValido($request->header('Authorization'));
             if($uid == "Unauthenticated")
             return "ERROR 11";
 

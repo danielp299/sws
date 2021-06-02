@@ -18,6 +18,7 @@ class CreateVictimasTable extends Migration
             $table->string('uid_user');
             $table->string('uid_avatar');
             $table->decimal('exp',42,2);
+            $table->decimal('evolucion',42,2);
             $table->timestamps();
         });
     }

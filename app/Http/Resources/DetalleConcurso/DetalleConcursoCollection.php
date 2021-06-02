@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources\DetalleConcurso;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class DetalleConcursoCollection extends Resource
+class DetalleConcursoCollection extends JsonResource
 {
     /**
      * Transform the resource collection into an array.
