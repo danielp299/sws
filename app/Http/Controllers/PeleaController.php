@@ -1,7 +1,5 @@
 <?php
 
-require __DIR__.'/vendor/autoload.php';
-
 namespace App\Http\Controllers;
 
 use Kreait\Firebase\Factory;
@@ -74,6 +72,7 @@ use App\Http\Resources\InscritoConcurso\InscritoConcursoResource;
        
 
        $arrayServiceAccount = array(
+           "type"=>"service_account",
             "project_id" => env('FIREBASE_PROYECT_ID'),
             "client_id" => env('FIREBASE_CLIENT_ID'),
             "client_email" => env('FIREBASE_CLIENT_EMAIL'),
